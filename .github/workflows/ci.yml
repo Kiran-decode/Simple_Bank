@@ -3,6 +3,7 @@ name: Go
 on:
   push:
     branches: ["main"]
+
   pull_request:
     branches: ["main"]
 
@@ -18,6 +19,7 @@ jobs:
         env:
           POSTGRES_USER: root1
           POSTGRES_PASSWORD: ananya
+          POSTGRES_DB: simple_bank
 
         options: >-
           --health-cmd pg_isready
@@ -26,22 +28,24 @@ jobs:
           --health-retries 5
 
     steps:
-  - uses: actions/checkout@v4
+      - name: Check out code
+        uses: actions/checkout@v4
 
-  -   name: Set up Go
-    uses: actions/setup-go@v4
-    with:
-      go-version: "1.20"
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
 
-  -  name: Install golang-migrate
-    run: |
-      curl -L https://github.com/golang-migrate/migrate/releases/download/v4.19.1/migrate.linux-amd64.tar.gz -o migrate.tar.gz
-      tar -xzf migrate.tar.gz
-      sudo mv migrate /usr/local/bin/migrate
-      migrate -version
+      - name: Install golang-migrate
+        run: |
+          curl -L https://github.com/golang-migrate/migrate/releases/download/v4.12.2/migrate.linux-amd64.tar.gz | tar xvz
 
-    -   name: Run migrations
-    run: make migrateup
+          sudo mv migrate.linux-amd64 /usr/bin/migrate
 
-  - name: Test
-    run: make test
+          which migrate
+
+      - name: Run migrations
+        run: make migrateup
+
+      - name: Test
+        run: make test
